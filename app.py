@@ -121,61 +121,24 @@ with tab_add:
     st.info("👉 Complete TODO 3 in app.py to implement book registration.")
 
 
-# ===================================================================
-# TODO 4: Circulation Desk (Check Out & Return) (Lab Step 6)12321
-# ===================================================================
-with tab_circulation:
-    st.subheader("Circulation Operations")
+avail = [b for b in books if b.get("is_available")]
+opts = {f"#{b['id']}: {b['title']}": b["id"] for b in avail}
+chosen = st.selectbox("Livro:", list(opts.keys()))
+borrower = st.text_input("Nome do Aluno:")
 
-    col_checkout, col_return = st.columns(2)
+if st.button("Realizar Empréstimo"):
+    receipt = checkout_book(books, opts[chosen], borrower)
+    save_books(DATA_FILE, books)
+    st.success(f"Emprestado para {receipt['borrower']}!")
+    st.rerun()
 
-    # Checkout
-    with col_checkout:
-        st.subheader("Checkout")
+out = [b for b in books if not b.get("is_available")]
+ret_opts = {f"#{b['id']}: {b['title']}": b["id"] for b in out}
+ret_chosen = st.selectbox("Devolver Livro:", list(ret_opts.keys()))
 
-        avail = [b for b in books if b.get("is_available", False)]
-
-        if avail:
-            opts = {
-                f"#{b['id']}: {b['title']}": b["id"]
-                for b in avail
-            }
-
-            chosen = st.selectbox("Livro:", list(opts.keys()))
-            borrower = st.text_input("Nome do Aluno:")
-
-            if st.button("Realizar Emprestimo"):
-                receipt = checkout_book(books, opts[chosen], borrower)
-                save_books(DATA_FILE, books)
-                st.success(f"Emprestado para {receipt['borrower']}!")
-                st.rerun()
-        else:
-            st.info("Nenhum livro disponível para empréstimo.")
-
-    # Return
-    with col_return:
-        st.subheader("Return")
-
-        out = [b for b in books if not b.get("is_available", False)]
-
-        if out:
-            ret_opts = {
-                f"#{b['id']}: {b['title']}": b["id"]
-                for b in out
-            }
-
-            ret_chosen = st.selectbox(
-                "Devolver Livro:",
-                list(ret_opts.keys())
-            )
-
-            if st.button("Confirmar Devolucao"):
-                receipt = return_book(books, ret_opts[ret_chosen])
-                save_books(DATA_FILE, books)
-                st.success(f"Devolvido: {receipt['title']}!")
-                st.rerun()
-        else:
-            st.info("Nenhum livro está emprestado.")
-
-
+if st.button("Confirmar Devolução"):
+    receipt = return_book(books, ret_opts[ret_chosen])
+    save_books(DATA_FILE, books)
+    st.success(f"Devolvido: {receipt['title']}!")
+    st.rerun()
     st.info("👉 Complete TODO 4 in app.py to implement checkout and return workflows.")
