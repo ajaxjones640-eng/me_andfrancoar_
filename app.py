@@ -49,22 +49,27 @@ books = get_current_books()
 st.title("📚 Library Management & Circulation Dashboard")
 st.caption("Day 3 Lab: Pure Python Web Frontend with Streamlit")
 
-# ===================================================================
-# TODO 1: Key Metrics Dashboard (Morning Lecture / Lab Step 3)
-# ===================================================================
-# 1. Call `summary = generate_library_summary(books)` from library_system.reporting.
-# 2. Use `st.columns(4)` to create 4 dashboard cards.
-# 3. In each column, use `st.metric()` to display:
-#    - Column 1: Total Books
-#    - Column 2: Available on Shelf
-#    - Column 3: Currently Borrowed
-#    - Column 4: Average Release Year
-#
-# Hint:
-# summary = generate_library_summary(books)
-# m1, m2, m3, m4 = st.columns(4)
-# m1.metric("Total Books", summary.get("total_books", 0))
-# ...
+summary = generate_library_summary(books)
+
+m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+with m_col1:
+    st.metric(label="Total de Livros", value=summary.get("total_books", 0))
+with m_col2:
+    st.metric(
+        label="Disponíveis na Estante",
+        value=summary.get("available_books", 0),
+        delta=f"{summary.get('available_books', 0)} prontos",
+    )
+with m_col3:
+    st.metric(
+        label="Emprestados",
+        value=summary.get("borrowed_books", 0),
+        delta=f"-{summary.get('borrowed_books', 0)} fora" if summary.get("borrowed_books", 0) > 0 else "Nenhum",
+        delta_color="inverse",
+    )
+with m_col4:
+    avg_yr = summary.get("average_year", 0.0)
+    st.metric(label="Ano Médio de Lançamento", value=f"{avg_yr:.1f}" if avg_yr > 0 else "N/A")
 
 st.info("👉 Complete TODO 1 in app.py to render library status metrics cards here.")
 
